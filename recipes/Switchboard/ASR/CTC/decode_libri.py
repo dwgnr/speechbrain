@@ -35,7 +35,6 @@ logger = logging.getLogger(__name__)
 
 # Define training procedure
 class ASR(sb.Brain):
-
     def compute_forward(self, batch, stage):
         """Forward computations from the waveform batches to the output probabilities."""
 
@@ -53,7 +52,6 @@ class ASR(sb.Brain):
         if stage == sb.Stage.TEST and self.hparams.augment_test_data:
             if hasattr(self.modules, "babble"):
                 wavs = self.modules.babble(wavs, wav_lens)
-
 
         # Forward pass
         feats = self.modules.wav2vec2(wavs)
@@ -242,7 +240,8 @@ def dataio_prepare(hparams, tokenizer):
 
     # 3. Define text pipeline:
     @sb.utils.data_pipeline.takes("wrd")
-    @sb.utils.data_pipeline.provides("tokens_list", "tokens_bos", "tokens_eos", "tokens"
+    @sb.utils.data_pipeline.provides(
+        "tokens_list", "tokens_bos", "tokens_eos", "tokens"
     )
     def text_pipeline(wrd):
         tokens_list = tokenizer.sp.encode_as_ids(wrd)
@@ -256,11 +255,9 @@ def dataio_prepare(hparams, tokenizer):
 
     sb.dataio.dataset.add_dynamic_item(datasets, text_pipeline)
 
-
     # 5. Set output:
     sb.dataio.dataset.set_output_keys(
-        datasets,
-        ["id", "sig", "tokens_bos", "tokens_eos", "tokens"],
+        datasets, ["id", "sig", "tokens_bos", "tokens_eos", "tokens"],
     )
     return train_data, valid_data, test_datasets
 
@@ -296,9 +293,7 @@ if __name__ == "__main__":
     )
 
     # here we create the datasets objects as well as tokenization and encoding
-    train_data, valid_data, test_datasets = dataio_prepare(
-        hparams, tokenizer
-    )
+    train_data, valid_data, test_datasets = dataio_prepare(hparams, tokenizer)
 
     normalize_fn = functools.partial(
         normalize_words, glm_alternatives=read_glm_csv(hparams["output_folder"])
@@ -334,5 +329,6 @@ if __name__ == "__main__":
             hparams["output_folder"], f"wer_{k}{test_snr}.txt"
         )
         asr_brain.evaluate(
-            test_datasets[k], test_loader_kwargs=hparams["test_dataloader_options"]
+            test_datasets[k],
+            test_loader_kwargs=hparams["test_dataloader_options"],
         )
