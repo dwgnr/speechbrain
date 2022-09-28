@@ -48,10 +48,14 @@ test_csv:
   - !ref <output_folder>/test_callhome.csv
   - !ref <output_folder>/test.csv
 
+libri_test_csv:
+   - !ref <output_folder>/test-clean.csv
+   - !ref <output_folder>/test-other.csv
+
 # Add babble to testdata
-augment_test_data: True
+augment_test_data: False
 # We want to test -3, 0, 9, 12
-test_snr: -3
+test_snr: 15
 
 # Training parameters
 number_of_epochs: 30
@@ -137,7 +141,7 @@ babble: !new:augmentation.AddBabble
    mix_prob: 1.0
    snr_low: 0
    snr_high: !ref <test_snr>
-   fixed_snr: True
+   fixed_snr: False
 
 #####
 # Uncomment this block if you prefer to use a Fairseq pretrained model instead
